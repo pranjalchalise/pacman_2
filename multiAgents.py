@@ -110,6 +110,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+    
 
     def getAction(self, gameState):
         """
@@ -135,6 +136,47 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+        
+        bestAction = self.max_value(gameState, 0, self.depth)[1]
+        return bestAction
+
+    def max_value(self, gameState, agentIndex, depth):
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState), None
+        bestScore = float('-inf')
+        bestAction = None
+        for action in gameState.getLegalActions(agentIndex):
+            successorState = gameState.generateSuccessor(agentIndex, action)
+            score = self.min_value(successorState, 1, depth)[0]
+            if score > bestScore:
+                bestScore = score
+                bestAction = action
+
+        return bestScore, bestAction
+
+    def min_value(self, gameState, agentIndex, depth):
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState), None
+        worstScore = float('inf')
+        bestAction = None
+        nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgentIndex == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+        for action in gameState.getLegalActions(agentIndex):
+            successorState = gameState.generateSuccessor(agentIndex, action)
+            if nextAgentIndex == 0:
+                score = self.max_value(successorState, nextAgentIndex, nextDepth)[0]
+            else:
+                score = self.min_value(successorState, nextAgentIndex, nextDepth)[0]
+            if score < worstScore:
+                worstScore = score
+                bestAction = action
+
+        return worstScore, bestAction
+        
+            
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
