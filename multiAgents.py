@@ -72,9 +72,7 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        ghostDist=float('inf')
-
-
+        
         "*** YOUR CODE HERE ***"
         totalScore = successorGameState.getScore()        
         #  add score to get to the closest food
@@ -86,13 +84,13 @@ class ReflexAgent(Agent):
         # gain point by chasing when ghost is scared and running away when ghost is not scared
         for i in range(len(newGhostStates)):
             ghostState = newGhostStates[i]
-            ghostPos = ghostState.getPosition()
-            ghostDist = manhattanDistance(newPos, ghostPos)
+            ghostPosition = ghostState.getPosition()
+            ghostDistance = manhattanDistance(newPos, ghostPosition)
             scaredTime = newScaredTimes[i]
             if scaredTime>0:              
-                    totalScore+= 1.0/ghostDist
+                    totalScore+= 1.0/ghostDistance
             else: 
-                if ghostDist < 2:
+                if ghostDistance < 2:
                     return float('-inf')
         return totalScore
         
@@ -316,73 +314,42 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         return totalScore / numActions, None
 
-# def betterEvaluationFunction(currentGameState):
-   
-#     pacmanPosition = currentGameState.getPacmanPosition() 
-#     foodList = currentGameState.getFood().asList()  
-#     ghostStates = currentGameState.getGhostStates() 
-#     scaredTimes = [ghost.scaredTimer for ghost in ghostStates]  
-#     capsules = currentGameState.getCapsules()  
-   
-#     totalscore = currentGameState.getScore()
 
-#     # add score to get to the closest food
-#     if foodList:
-#         for food in foodList:
-#             closestFood = min([manhattanDistance(pacmanPosition, food) ])
-#             totalscore += 1.0 / closestFood 
- 
-            
-#    # add score for chasing the scared ghost
-#     for i, ghost in enumerate(ghostStates):
-#         if scaredTimes[i] > 0:
-#             ghostPos = ghost.getPosition()
-#             ghostDistance = manhattanDistance(pacmanPosition, ghostPos)
-#             if ghostDistance > 0:
-#                 score += 1.0 / ghostDistance  
- 
-  
-#     # add scores to get the closest capsule
-#     if capsules:
-#      for cap in capsules:
-#         closestCapsule = min([manhattanDistance(pacmanPosition, cap)])
-#         totalscore += 1.0 / closestCapsule 
-
-#     return totalscore
 
 def betterEvaluationFunction(currentGameState):
     
 
-    pacmanPosition = currentGameState.getPacmanPosition() 
-    food = currentGameState.getFood().asList()  
-    ghostStates = currentGameState.getGhostStates()  
-    scaredTimes = [ghost.scaredTimer for ghost in ghostStates]  
+    newPos = currentGameState.getPacmanPosition() 
+    newFood = currentGameState.getFood().asList()  
+    newGhostStates = currentGameState.getGhostStates()  
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]  
     capsules = currentGameState.getCapsules()  
-   
-    score = currentGameState.getScore()
+
+    totalScore = currentGameState.getScore()
 
     # add score to get to the closest food
-    if food:
-        for f in food:
-            closestFood = min([manhattanDistance(pacmanPosition, f)])
-            score += 1.0 / closestFood 
+    if newFood:
+        for food in newFood:
+            closestFood = min([manhattanDistance(newPos, food)])
+            totalScore += 1.0 / closestFood 
 
    # add score for chasing the scared ghost
-    for i, ghost in enumerate(ghostStates):
-        ghostPos = ghost.getPosition()
-        ghostDistance = manhattanDistance(pacmanPosition, ghostPos)
-        if scaredTimes[i] > 0:
-            score += 1.0 / ghostDistance
+    for i in range(len(newGhostStates)):
+        ghost = newGhostStates[i]
+        ghostPosition = ghost.getPosition()
+        ghostDistance = manhattanDistance(newPos, ghostPosition)
+        if newScaredTimes[i] > 0:
+            totalScore += 1.0 / ghostDistance
         else:
             if ghostDistance <= 2.0:
                 return float('-inf')
 
     # add scores to get the closest capsule
     if capsules:
-        closestCapsule = min([manhattanDistance(pacmanPosition, cap) for cap in capsules])
-        score += 1.0 / closestCapsule 
+        closestCapsule = min([manhattanDistance(newPos, cap) for cap in capsules])
+        totalScore += 1.0 / closestCapsule 
 
-    return score
+    return totalScore
 
 # Abbreviation
 better = betterEvaluationFunction
