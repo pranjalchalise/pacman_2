@@ -74,7 +74,7 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         
         "*** YOUR CODE HERE ***"
-        totalScore = successorGameState.getScore()        
+        totalScore = successorGameState.getScore()    # base score from successor state    
         #  add score to get to the closest food
         for food in newFood.asList():
            closestFood = min([manhattanDistance(newPos, food)]) 
@@ -168,9 +168,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(gameState), None
         bestScore = float('-inf')
         bestAction = None
+        # Loop through each action and compute the minimum value for the ghosts
         for action in gameState.getLegalActions(agentIndex):
             successorState = gameState.generateSuccessor(agentIndex, action)
-            score = self.min_value(successorState, 1, depth)[0]
+            score = self.min_value(successorState, 1, depth)[0] # call min_value for the ghosts (agentIndex >= 1)
             if score > bestScore:
                 bestScore = score
                 bestAction = action
@@ -181,11 +182,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(gameState), None
         worstScore = float('inf')
         bestAction = None
-        nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents()
+        nextAgentIndex = (agentIndex + 1) % gameState.getNumAgents() # to determine the next agent's index
+        
+        # adjusting the depth if it's Pacman's turn next
+
         if nextAgentIndex == 0:
             nextDepth = depth - 1
         else:
             nextDepth = depth
+        
         for action in gameState.getLegalActions(agentIndex):
             successorState = gameState.generateSuccessor(agentIndex, action)
             if nextAgentIndex == 0:
@@ -195,10 +200,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
             if score < worstScore:
                 worstScore = score
                 bestAction = action
-        return worstScore, bestAction
         
-            
-        util.raiseNotDefined()
+        return worstScore, bestAction # return the worst score and action
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -273,6 +277,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         bestAction = self.expectimax(gameState, 0, self.depth)[1]
         return bestAction
         util.raiseNotDefined()
+   
     def expectimax(self, gameState, agentIndex, depth):
         if gameState.isWin() or gameState.isLose() or depth == 0:
             return self.evaluationFunction(gameState), None
@@ -285,6 +290,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     def max_value(self, gameState, agentIndex, depth):
         bestScore = float('-inf')
         bestAction = None
+        
         for action in gameState.getLegalActions(agentIndex):
             successorState = gameState.generateSuccessor(agentIndex, action)
             score = self.expectimax(successorState, 1, depth)[0]
@@ -312,7 +318,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             score = self.expectimax(successorState, nextAgentIndex, nextDepth)[0]
             totalScore += score
 
-        return totalScore / numActions, None
+        return totalScore / numActions, None  # returns the average score (expected value)
 
 
 
